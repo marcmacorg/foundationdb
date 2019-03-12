@@ -1,6 +1,6 @@
 node('test-dynamic-slave') {
     stage("Checkout") {
-        //def scmInfo = checkout scm relativeTargetDir: 'foundationdb'
+        println(scm)
         cleanWs()
 
         sfScmInfo = checkout([$class: 'GitSCM', 
