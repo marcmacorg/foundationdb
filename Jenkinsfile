@@ -1,11 +1,9 @@
 node('test-dynamic-slave') {
     stage("Checkout") {
-        println("${scm}")
-        println("${scm.branches}")
         cleanWs()
 
         sfScmInfo = checkout([$class: 'GitSCM', 
-            branches: [[name: '*/master']], 
+            branches: [[name: '*']], 
             doGenerateSubmoduleConfigurations: false, 
             extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'snowflake']],
             submoduleCfg: [], 
@@ -24,7 +22,6 @@ node('test-dynamic-slave') {
         println("$scmInfo")
     }
     stage("Build") {
-        /*
         sh """
             |export GIT_SPECIFIER=${scmInfo.GIT_COMMIT}
             |rm -rf venv
@@ -37,6 +34,5 @@ node('test-dynamic-slave') {
             |cd snowflake/jenkins
             |./build.sh check_uploaded package upload
           """.stripMargin()
-        */
     }
 }
