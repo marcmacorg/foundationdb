@@ -1,7 +1,6 @@
 node('test-dynamic-slave') {
     stage("Checkout") {
         println("${scm}")
-        println("${scm.refSpecs}")
         println("${scm.branches}")
         cleanWs()
 
