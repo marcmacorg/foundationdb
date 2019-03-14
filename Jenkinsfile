@@ -1,4 +1,3 @@
-
 stage("Build") {
     node('test-dynamic-slave') {
         println(scm.userRemoteConfigs)
