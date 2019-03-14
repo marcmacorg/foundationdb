@@ -39,7 +39,7 @@ stage("Build") {
 def makeTestStep(iteration) {
     return {
         node("test-dynamic-slave") {
-
+            cleanWs()
             sfScmInfo = checkout([$class: 'GitSCM',
                 branches: [[name: '*']],
                 doGenerateSubmoduleConfigurations: false,
@@ -59,7 +59,12 @@ def makeTestStep(iteration) {
                 ])
             println("$scmInfo")
             sh """
+                |# Clean up the jenkins output; gets messy with too many iterations
                 |set +x
+                |exec 3>&1
+                |exec 1> \$WORKSPACE/setup_${iteration}.log
+                |exec 2>&1
+                |
                 |export GIT_SPECIFIER=${scmInfo.GIT_COMMIT}
                 |rm -rf venv
                 |virtualenv-3.4 venv
@@ -68,11 +73,18 @@ def makeTestStep(iteration) {
                 |docker-compose --version
                 |git config --global user.name jenkins
                 |git config --global user.email fdb-devs@snowflake.net
+                |
                 |cd snowflake/jenkins
+                |echo Iteration ${iteration} building >&3
                 |./build.sh configure download test sql sql_upload > \$WORKSPACE/iteration_${iteration}.log 2>&1
-                |cat \$WORKSPACE/iteration_${iteration}.log
+                |rc=\$?
+                |seed=\$(find . -name traces.json -exec grep -m 1 CMakeSEED {} \\; | awk '{print \$2}'  | head -1 | tr -d '"}')
+                |echo Iteration ${iteration} completed with \$rc - seed \$seed >&3
+                |mv \$WORKSPACE/iteration_${iteration}.log \$WORKSPACE/iteration_${iteration}_\${seed}.log
+                |find . -name traces.json -exec gzip -c {} > \$WORKSPACE/traces_${iteration}_\${seed}.json.gz \\;
+                |#cat \$WORKSPACE/iteration_${iteration}.log
               """.stripMargin()
-              archiveArtifacts 'iteration_*log'
+              archiveArtifacts 'setup_*log,iteration_*log,traces_*.json.gz'
         }
     }
 }
