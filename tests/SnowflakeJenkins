@@ -37,6 +37,7 @@ stage("Build") {
                 |# This list is sorted by username!  Don't make me come find you!
                 |set -x
                 |env
+                |
                 |set +x
                 |
                 |whitelist=(
