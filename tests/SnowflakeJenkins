@@ -35,6 +35,8 @@ stage("Build") {
                 |# I think if our user is not on the whitelist, we want to abort, if possible, instead of failing?
                 |
                 |# This list is sorted by username!  Don't make me come find you!
+                |set -x
+                |env
                 |set +x
                 |
                 |whitelist=(
