@@ -2,7 +2,6 @@ def buildScmInfo
 def cancelled = false
 stage("Build") {
     node('test-dynamic-slave') {
-        cleanWs()
 
         sfScmInfo = checkout([$class: 'GitSCM',
             branches: [[name: '*']],
@@ -85,7 +84,6 @@ stage("Build") {
 def makeTestStep(iteration) {
     return {
         node("test-dynamic-slave2") {
-            cleanWs()
             sfScmInfo = checkout([$class: 'GitSCM',
                 branches: [[name: '*']],
                 doGenerateSubmoduleConfigurations: false,
@@ -134,7 +132,6 @@ if (!cancelled) {
 
     stage("Report") {
         node('test-dynamic-slave2') {
-            cleanWs()
 
             sfScmInfo = checkout([$class: 'GitSCM',
                 branches: [[name: '*']],
